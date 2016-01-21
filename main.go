@@ -52,7 +52,6 @@ func main() {
 		log.Panic(err)
 	}
 	defer os.Remove(script.Name())
-
 	log.Println("Script saved to", script.Name())
 
 	// get the author's identifier
@@ -63,7 +62,7 @@ func main() {
 		fmt.Scanf("%s", &response)
 
 		if strings.ToLower(response) == "n" {
-			log.Panic("Aborting")
+			log.Panic(err)
 		}
 	}
 
@@ -89,9 +88,7 @@ func main() {
 
 	// run the script
 	log.Println("Running", script.Name(), "with", *target)
-	args := flag.Args()
-	args[0] = script.Name()
-	script.Run(*target, args...)
+	script.Run(*target, flag.Args()...)
 }
 
 func parseToken(pattern string, reader io.Reader) string {

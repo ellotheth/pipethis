@@ -67,10 +67,12 @@ func (s *Script) Author() (string, error) {
 		return s.author, nil
 	}
 
-	return "", errors.New("author not found")
+	return "", errors.New("Author not found")
 }
 
 func (s Script) Run(target string, args ...string) error {
+	args[0] = s.Name()
+
 	cmd := exec.Command(target, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
