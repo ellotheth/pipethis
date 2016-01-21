@@ -22,6 +22,11 @@ type ReadSeekCloser interface {
 }
 
 func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			os.Exit(1)
+		}
+	}()
 
 	var (
 		target  = flag.String("target", os.Getenv("SHELL"), "Executable to run the script")
@@ -33,21 +38,18 @@ func main() {
 
 	if len(flag.Args()) < 1 {
 		flag.Usage()
-		log.Println("No script specified")
-		return
+		log.Panic("No script specified")
 	}
 
 	if _, err := os.Stat(*target); os.IsNotExist(err) {
-		log.Println("Script executable does not exist")
-		return
+		log.Panic("Script executable does not exist")
 	}
 	log.Println("Using script executable", *target)
 
 	// download the script, store it someplace temporary
 	script, err := NewScript(flag.Arg(0))
 	if err != nil {
-		log.Println(err)
-		return
+		log.Panic(err)
 	}
 	defer os.Remove(script.Name())
 
@@ -61,29 +63,25 @@ func main() {
 		fmt.Scanf("%s", &response)
 
 		if strings.ToLower(response) == "n" {
-			log.Println("Aborting")
-			return
+			log.Panic("Aborting")
 		}
 	}
 
 	if cont := script.Inspect(*inspect, *editor); !cont {
-		log.Println("Exiting without running", script.Name())
-		return
+		log.Panic("Exiting without running", script.Name())
 	}
 
 	if author != "" && *verify {
 		key, err := lookup.Key(lookup.KeybaseService{}, author)
 		if err != nil {
-			log.Println(err)
-			return
+			log.Panic(err)
 		}
 
 		signature := NewSignature(key, script)
 		defer os.Remove(signature.Name())
 
 		if err := signature.Verify(); err != nil {
-			log.Println(err)
-			return
+			log.Panic(err)
 		}
 
 		log.Println("Signature", signature.Source(), "verified!")
