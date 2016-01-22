@@ -24,9 +24,18 @@ improve your life)
 $ pipethis --no-verify --inspect https://get.rvm.io
 ```
 
-## Usage
+## Install
 
-### People doing the installing
+```
+$ go get github.com/ellotheth/pipethis
+```
+
+or [download the binary](https://github.com/ellotheth/pipethis/releases) and
+drop it in your `$PATH`.
+
+## Use
+
+### People piping the installers
 
 ```
 pipethis [ --target <exe> | --inspect | --editor <editor> | --no-verify ] <script>
