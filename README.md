@@ -56,9 +56,9 @@ pipethis [ --target <exe> | --inspect | --editor <editor> | --no-verify ] <scrip
 You can add one line to your installer script to make it support `pipethis`,
 but there's other stuff to do as well:
 
-1. Get an account on [Keybase](https://keybase.io). I know, Real Crypto Geeks
-   (tm) hate Keybase because Browser Crypto Is Unsafe (tm) and They Can Store
-   Your Private Key (r). It's a place to start, yo, just do it.
+1. Get an account on [Keybase](https://keybase.io). I know, Real Crypto Geeks™
+   hate Keybase because Browser Crypto Is Unsafe™ and They Can Store
+   Your Private Key®. It's a place to start, yo, just do it.
 2. Add one line to your installation script to identify yourself. You can throw
    it in a comment:
 
@@ -77,7 +77,7 @@ but there's other stuff to do as well:
     $ keybase pgp sign -i yourscript.sh -d -o yourscript.sh.sig
     ```
 
-   but you're a Real Crypto Geek (tm), so you'll use `gnupg`:
+   but you're a Real Crypto Geek™, so you'll use `gnupg`:
 
     ```
     $ gpg --detach-sign -a -o yourscript.sh.sig yourscript.sh
@@ -86,6 +86,7 @@ but there's other stuff to do as well:
 	Both those commands create ASCII-armored signatures. Binary signatures work
 	too.
 4. Pop both the script and the signature up on your web server.
+5. Replace your copy-paste-able installation instructions!
 
 ## What's all this noise
 
