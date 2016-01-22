@@ -93,7 +93,7 @@ func (s Script) Inspect(inspect bool, editor string) bool {
 	cmd.Run()
 
 	runScript := "y"
-	fmt.Print("Continue to signature verification for ", s.Name(), " now? (Y/n) ")
+	fmt.Print("Continue processing ", s.Name(), "? (Y/n) ")
 	fmt.Scanf("%s", &runScript)
 
 	return strings.ToLower(runScript) == "y"

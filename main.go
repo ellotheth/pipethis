@@ -4,14 +4,12 @@ import (
 	"bufio"
 	"errors"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"regexp"
-	"strings"
 
 	"github.com/ellotheth/pipethis/lookup"
 )
@@ -29,10 +27,10 @@ func main() {
 	}()
 
 	var (
-		target  = flag.String("target", os.Getenv("SHELL"), "Executable to run the script")
-		inspect = flag.Bool("inspect", false, "Open an editor to inspect the file before running it")
-		editor  = flag.String("editor", os.Getenv("EDITOR"), "Editor to inspect the script")
-		verify  = flag.Bool("verify", true, "Verify the signature")
+		target   = flag.String("target", os.Getenv("SHELL"), "Executable to run the script")
+		inspect  = flag.Bool("inspect", false, "Open an editor to inspect the file before running it")
+		editor   = flag.String("editor", os.Getenv("EDITOR"), "Editor to inspect the script")
+		noVerify = flag.Bool("no-verify", false, "Don't verify the author or signature")
 	)
 	flag.Parse()
 
@@ -54,23 +52,16 @@ func main() {
 	defer os.Remove(script.Name())
 	log.Println("Script saved to", script.Name())
 
-	// get the author's identifier
-	author, err := script.Author()
-	if err != nil {
-		fmt.Print("Author not found. Run anyway? (y/N) ")
-		response := "n"
-		fmt.Scanf("%s", &response)
-
-		if strings.ToLower(response) == "n" {
-			log.Panic(err)
-		}
-	}
-
 	if cont := script.Inspect(*inspect, *editor); !cont {
 		log.Panic("Exiting without running", script.Name())
 	}
 
-	if author != "" && *verify {
+	if !*noVerify {
+		author, err := script.Author()
+		if err != nil {
+			log.Panic(err)
+		}
+
 		key, err := lookup.Key(lookup.KeybaseService{}, author)
 		if err != nil {
 			log.Panic(err)
