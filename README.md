@@ -122,6 +122,8 @@ There are simple solutions to some of those problems:
 - Cache the script before you shove it into Bash.
 - Use something like [vipe](https://joeyh.name/code/moreutils/) to pipe the
   script into an editor so you can review it before you run it.
+- Use [hashpipe](https://github.com/jbenet/hashpipe) to check the file hash
+  before you run it.
 
 But simple solutions are, like, boring, and stuff.
 
