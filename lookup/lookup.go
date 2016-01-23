@@ -1,3 +1,11 @@
+/*
+pipethis: Stop piping the internet into your shell
+Copyright 2016 Ellotheth
+
+Use of this source code is governed by the GNU Public License version 2
+(GPLv2). You should have received a copy of the GPLv2 along with your copy of
+the source. If not, see http://www.gnu.org/licenses/gpl-2.0.html.
+*/
 package lookup
 
 import (
