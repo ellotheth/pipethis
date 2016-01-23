@@ -144,8 +144,8 @@ Enter `pipethis`.
 
 ## How it works
 
-Scripts that support `pipethis` will have one or two special lines that
-identify the script author, and optionally where the PGP signature lives.
+Scripts that support `pipethis` will embed a special line that identifies the
+script author:
 
 ```{.sh}
 #!/usr/bin/bash
@@ -155,13 +155,17 @@ identify the script author, and optionally where the PGP signature lives.
 echo woooooo look how verified everything is!
 ```
 
-`pipethis` checks [Keybase](https://keybase.io) for any users that match
-`PIPETHIS_AUTHOR`. (It uses the same search you find in the search box on their
-website, so you could use a username, a Twitter handle, or even a key
-fingerprint.) It'll spit all the matches back at you in a list, along with all
-their Keybase proofs. Once you choose one, `pipethis` grabs the public key for
-that user. If you don't see the person you're looking for, you can bail. No
-harm, no foul.
+If you drop `--inspect` on the command line, `pipethis` with throw the script
+into your favorite editor before it does anything else, and you can check the
+author (and the rest of the content) yourself.
+
+If you're happy with the script contents, `pipethis` checks
+[Keybase](https://keybase.io) for any users that match `PIPETHIS_AUTHOR`. (It
+uses the same search you find in the search box on their website, so you could
+use a username, a Twitter handle, or even a key fingerprint.) It'll spit all
+the matches back at you in a list, along with all their Keybase proofs. Once
+you choose one, `pipethis` grabs the public key for that user. If you don't see
+the person you're looking for, you can bail. No harm, no foul.
 
 ```
 I found 2 results:
