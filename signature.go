@@ -15,8 +15,8 @@ type Signature struct {
 	source   string
 }
 
-func NewSignature(key openpgp.KeyRing, script *Script) *Signature {
-	sig := &Signature{key: key, script: script}
+func NewSignature(key openpgp.KeyRing, script *Script, source string) *Signature {
+	sig := &Signature{key: key, script: script, source: source}
 	sig.filename = script.Name() + ".sig"
 
 	return sig
@@ -28,18 +28,6 @@ func (s Signature) Name() string {
 
 func (s *Signature) Source() string {
 	if s.source != "" {
-		return s.source
-	}
-
-	file, err := s.script.Body()
-	if err != nil {
-		return ""
-	}
-	defer file.Close()
-
-	if source := parseToken(`.*PIPETHIS_SIG\s+(\S+)`, file); source != "" {
-		s.source = source
-
 		return s.source
 	}
 

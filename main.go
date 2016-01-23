@@ -27,10 +27,11 @@ func main() {
 	}()
 
 	var (
-		target   = flag.String("target", os.Getenv("SHELL"), "Executable to run the script")
-		inspect  = flag.Bool("inspect", false, "Open an editor to inspect the file before running it")
-		editor   = flag.String("editor", os.Getenv("EDITOR"), "Editor to inspect the script")
-		noVerify = flag.Bool("no-verify", false, "Don't verify the author or signature")
+		target    = flag.String("target", os.Getenv("SHELL"), "Executable to run the script")
+		inspect   = flag.Bool("inspect", false, "Open an editor to inspect the file before running it")
+		editor    = flag.String("editor", os.Getenv("EDITOR"), "Editor to inspect the script")
+		noVerify  = flag.Bool("no-verify", false, "Don't verify the author or signature")
+		sigSource = flag.String("signature", "", `Detached signature to verify. (default "<script location>.sig")`)
 	)
 	flag.Parse()
 
@@ -67,7 +68,7 @@ func main() {
 			log.Panic(err)
 		}
 
-		signature := NewSignature(key, script)
+		signature := NewSignature(key, script, *sigSource)
 		defer os.Remove(signature.Name())
 
 		if err := signature.Verify(); err != nil {

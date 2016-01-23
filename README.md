@@ -38,7 +38,7 @@ drop it in your `$PATH`.
 ### People piping the installers
 
 ```
-pipethis [ --target <exe> | --inspect | --editor <editor> | --no-verify ] <script>
+pipethis [ --target <exe> | --inspect | --editor <editor> | --no-verify | --signature <signature file> ] <script>
 
 --target <exe>
 
@@ -58,6 +58,12 @@ pipethis [ --target <exe> | --inspect | --editor <editor> | --no-verify ] <scrip
 
     If set, skips author and signature verification entirely. You'll need to
     set this if <script> doesn't support pipethis yet.
+
+--signature <signature file>
+
+	The detached signature to verify <script> against. You'll only need this if
+	you've already downloaded the detached signature, or it's hosted in a
+	non-standard location (i.e. it's not <script>.sig).
 ```
 
 ### People writing the installers
