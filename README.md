@@ -33,6 +33,11 @@ $ go get github.com/ellotheth/pipethis
 or [download the binary](https://github.com/ellotheth/pipethis/releases) and
 drop it in your `$PATH`.
 
+or the easy way
+
+```
+curl https://raw.githubusercontent.com/ellotheth/pipethis/master/install.sh | bash
+```
 ## Use
 
 ### People piping the installers
