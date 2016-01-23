@@ -81,11 +81,6 @@ but there's other stuff to do as well:
     # // ; '' PIPETHIS_AUTHOR your_name_or_your_key_fingerprint
     ```
 
-     1. If you don't want to store your signature at `<scriptname>.sig`, add
-        another line to tell `pipethis` where you're storing it:
-        
-            # // ; '' PIPETHIS_SIG https://your.sig/location
-
 3. Create a detached signature for the script. With Keybase, that's:
 
     ```
@@ -156,7 +151,6 @@ identify the script author, and optionally where the PGP signature lives.
 #!/usr/bin/bash
 
 # PIPETHIS_AUTHOR gemma
-# PIPETHIS_SIG    https://the.special.place/of/specialness
 
 echo woooooo look how verified everything is!
 ```
@@ -195,7 +189,7 @@ I found 2 results:
 ```
 
 Once you've picked an author, `pipethis` will go grab their detached PGP
-signature for the script. If `PIPETHIS_SIG` is not identified in the script,
+signature for the script. If `--signature` is not given on the command line,
 `pipethis` will tack `.sig` onto the end of the script location and try that
 instead.
 
