@@ -8,6 +8,8 @@ import (
 	"golang.org/x/crypto/openpgp"
 )
 
+// Signature represents the PGP signature to be verified against a key and
+// Script.
 type Signature struct {
 	key      openpgp.KeyRing
 	script   *Script
@@ -15,6 +17,7 @@ type Signature struct {
 	source   string
 }
 
+// NewSignature loads a key ring and Script into a new Signature.
 func NewSignature(key openpgp.KeyRing, script *Script, source string) *Signature {
 	sig := &Signature{key: key, script: script, source: source}
 	sig.filename = script.Name() + ".sig"
@@ -22,10 +25,13 @@ func NewSignature(key openpgp.KeyRing, script *Script, source string) *Signature
 	return sig
 }
 
+// Name is the name of the temporary file holding the signature.
 func (s Signature) Name() string {
 	return s.filename
 }
 
+// Source is the original location of the signature file. It defaults to
+// <script source>.sig.
 func (s *Signature) Source() string {
 	if s.source != "" {
 		return s.source
@@ -36,6 +42,7 @@ func (s *Signature) Source() string {
 	return s.source
 }
 
+// Download saves the signature to a temporary file.
 func (s *Signature) Download() error {
 	source := s.Source()
 	if source == "" {
@@ -59,6 +66,7 @@ func (s *Signature) Download() error {
 	return nil
 }
 
+// Body opens Signature.Name() for reading, downloading it first if necessary.
 func (s *Signature) Body() (ReadSeekCloser, error) {
 	info, err := os.Stat(s.Name())
 	if err != nil && !os.IsNotExist(err) {
@@ -75,6 +83,8 @@ func (s *Signature) Body() (ReadSeekCloser, error) {
 	return os.Open(s.Name())
 }
 
+// Verify checks Signature.Name() against the public key and script file, and
+// returns an error if the signature cannot be verified.
 func (s *Signature) Verify() error {
 	signed, err := s.script.Body()
 	if err != nil {

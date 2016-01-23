@@ -14,12 +14,15 @@ import (
 	"github.com/ellotheth/pipethis/lookup"
 )
 
+// ReadSeekCloser combines io.ReadSeeker and io.Closer, because I'm super lazy
 type ReadSeekCloser interface {
 	io.ReadSeeker
 	io.Closer
 }
 
 func main() {
+	// do log.Panic() instead of log.Fatal(), and all the deferred cleanup will
+	// still happen.
 	defer func() {
 		if r := recover(); r != nil {
 			os.Exit(1)
@@ -53,10 +56,12 @@ func main() {
 	defer os.Remove(script.Name())
 	log.Println("Script saved to", script.Name())
 
+	// let the user look at it if they want
 	if cont := script.Inspect(*inspect, *editor); !cont {
 		log.Panic("Exiting without running", script.Name())
 	}
 
+	// by default, verify the author and signature
 	if !*noVerify {
 		author, err := script.Author()
 		if err != nil {
@@ -99,6 +104,7 @@ func parseToken(pattern string, reader io.Reader) string {
 	return ""
 }
 
+// getFile tries to find location locally first, then tries remote
 func getFile(location string) (io.ReadCloser, error) {
 	body, err := getLocal(location)
 	if err == nil {

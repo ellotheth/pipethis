@@ -10,11 +10,19 @@ import (
 	"golang.org/x/crypto/openpgp"
 )
 
+// KeyService defines the interface for third-party identity verification and
+// public key services, like Keybase or Onename.
+//
+// Matches gets a list of identities that match a query string from the
+// KeyService.
+//
+// Key gets the PGP public key for one user.
 type KeyService interface {
 	Matches(query string) ([]User, error)
 	Key(user string) (openpgp.EntityList, error)
 }
 
+// User represents an author's identity.
 type User struct {
 	Username    string
 	Fingerprint string
@@ -26,6 +34,7 @@ type User struct {
 	Sites       []string
 }
 
+// String returns a representation of all the User's identity details.
 func (u User) String() string {
 	format := "%15s: %s\n"
 	s := ""
@@ -44,6 +53,8 @@ func (u User) String() string {
 	return s
 }
 
+// chooseMatch prints all the matches provided, prompts for a choice, and
+// returns the chosen match.
 func chooseMatch(matches []User) (User, error) {
 	log.Println("I found", len(matches), "results:")
 	fmt.Println()
@@ -74,6 +85,9 @@ func chooseMatch(matches []User) (User, error) {
 	return matches[n], nil
 }
 
+// Key looks up an author query in the provided KeyService, and prompts for a
+// choice of matches. It returns an error if no matches were found, if no match
+// was chosen, or if no PGP public was found.
 func Key(service KeyService, query string) (openpgp.KeyRing, error) {
 	// get possible matches from the key service
 	matches, err := service.Matches(query)

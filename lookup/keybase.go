@@ -33,6 +33,7 @@ type keybaseUserVal struct {
 	Value string `json:"val"`
 }
 
+// KeybaseService implements the KeyService interface for https://keybase.io
 type KeybaseService struct{}
 
 func (k KeybaseService) lookup(query string) ([]byte, error) {
@@ -66,6 +67,10 @@ func (k KeybaseService) parse(body []byte) (*keybaseResponse, error) {
 	return lookup, nil
 }
 
+// Matches finds all the Keybase users that match query in any of their details
+// (username, Twitter identity, Github identity, public key fingerprint,
+// etc.). At most 10 matches will be found. If no matches are found, Matches
+// returns an error.
 func (k KeybaseService) Matches(query string) ([]User, error) {
 	results, err := k.lookup(query)
 	if err != nil {
@@ -99,7 +104,12 @@ func (k KeybaseService) Matches(query string) ([]User, error) {
 	return matches, nil
 }
 
+// Key finds the PGP public key for one Keybase user by Keybase username and
+// returns the key ring representation of the key. If the Keybase username is
+// invalid, or the key itself is missing or invalid, Key returns an error.
 func (k KeybaseService) Key(user string) (openpgp.EntityList, error) {
+
+	// I think I set this up to match Keybase's own username pattern. I think.
 	if matches, _ := regexp.MatchString(`^[a-zA-Z0-9_\-\.]+$`, user); !matches {
 		return nil, errors.New("Invalid user requested")
 	}
