@@ -143,7 +143,11 @@ func (s *Script) Author() (string, error) {
 // additional arguments from the command line. It returns the result of the
 // process.
 func (s Script) Run(target string, args ...string) error {
-	args[0] = s.Name()
+	if s.source == "" {
+		args = append([]string{s.Name()}, args...)
+	} else {
+		args[0] = s.Name()
+	}
 
 	cmd := exec.Command(target, args...)
 	cmd.Stdout = os.Stdout

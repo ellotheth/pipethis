@@ -52,11 +52,6 @@ func main() {
 	)
 	flag.Parse()
 
-	if len(flag.Args()) < 1 {
-		flag.Usage()
-		log.Panic("No script specified")
-	}
-
 	if _, err := os.Stat(*target); os.IsNotExist(err) {
 		log.Panic("Script executable does not exist")
 	}
@@ -125,12 +120,37 @@ func parseToken(pattern string, reader io.Reader) string {
 
 // getFile tries to find location locally first, then tries remote
 func getFile(location string) (io.ReadCloser, error) {
+	if location == "" {
+		return getFromStdin()
+	}
+
 	body, err := getLocal(location)
 	if err == nil {
 		return body, nil
 	}
 
 	return getRemote(location)
+}
+
+func getFromStdin() (io.ReadCloser, error) {
+	stat, err := os.Stdin.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	if (stat.Mode() & os.ModeCharDevice) != 0 {
+		return nil, errors.New("No data in STDIN")
+	}
+
+	return os.Stdin, nil
+	// return ioutil.NopCloser(bufio.NewReader(os.Stdin)), nil
+
+	// body, err := ioutil.ReadAll(os.Stdin)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return ioutil.NopCloser(bytes.NewReader(body)), nil
 }
 
 func getRemote(location string) (io.ReadCloser, error) {
