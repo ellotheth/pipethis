@@ -12,6 +12,7 @@ import (
 	"bufio"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -46,23 +47,34 @@ func main() {
 	)
 	flag.Parse()
 
+	var script *Script
+	var err error
 	if len(flag.Args()) < 1 {
-		flag.Usage()
-		log.Panic("No script specified")
+		script, err = FNewScript(os.Stdin)
+		if err != nil {
+			log.Panic(err)
+		}
+	} else {
+		_, err := os.Stat(*target)
+		if err != nil && os.IsNotExist(err) {
+			log.Panic("Script executable does not exist")
+		}
+		log.Println("Using script executable", *target)
+
+		// download the script, store it someplace temporary
+		script, err = NewScript(flag.Arg(0))
+		if err != nil {
+			log.Panic(err)
+		}
 	}
 
-	if _, err := os.Stat(*target); os.IsNotExist(err) {
-		log.Panic("Script executable does not exist")
-	}
-	log.Println("Using script executable", *target)
-
-	// download the script, store it someplace temporary
-	script, err := NewScript(flag.Arg(0))
-	if err != nil {
-		log.Panic(err)
-	}
 	defer os.Remove(script.Name())
 	log.Println("Script saved to", script.Name())
+
+	// sanity check
+	if script == nil {
+		log.Panic(fmt.Errorf("bug on: script is nil"))
+	}
 
 	// let the user look at it if they want
 	if cont := script.Inspect(*inspect, *editor); !cont {
