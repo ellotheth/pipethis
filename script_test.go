@@ -13,34 +13,39 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestAuthorUsesSavedName(t *testing.T) {
-	s := Script{author: "foo"}
-
-	author, err := s.Author()
-	assert.NoError(t, err)
-	assert.Equal(t, "foo", author)
+type ScriptTest struct {
+	suite.Suite
 }
 
-func TestAuthorParsesFileForPattern(t *testing.T) {
+func (s *ScriptTest) TestAuthorUsesSavedName() {
+	script := Script{author: "foo"}
+
+	author, err := script.Author()
+	s.NoError(err)
+	s.Equal("foo", author)
+}
+
+func (s *ScriptTest) TestAuthorParsesFileForPattern() {
 	f, err := ioutil.TempFile("", "pipethis-test-")
 	if err != nil {
-		assert.Fail(t, "Couldn't open a temporary file")
+		s.Fail("Failed creating the test file")
 	}
+
 	filename := f.Name()
 
 	authorTest := func(expectedAuthor string, expectedError bool, input string) {
 		ioutil.WriteFile(filename, []byte(input), os.ModePerm)
 
-		s := Script{filename: filename}
-		author, err := s.Author()
-		assert.Equal(t, expectedAuthor, author)
+		script := Script{filename: filename}
+		author, err := script.Author()
+		s.Equal(expectedAuthor, author)
 		if expectedError {
-			assert.Error(t, err)
+			s.Error(err)
 		} else {
-			assert.NoError(t, err)
+			s.NoError(err)
 		}
 	}
 
@@ -87,4 +92,8 @@ things and stuff
 // PIPETHIS_AUTHOR other_author should ignore this one
 		`},
 	}
+}
+
+func TestScriptTest(t *testing.T) {
+	suite.Run(t, new(ScriptTest))
 }

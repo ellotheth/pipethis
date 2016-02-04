@@ -41,7 +41,7 @@ func (s Signature) Name() string {
 // Source is the original location of the signature file. It defaults to
 // <script source>.sig.
 func (s *Signature) Source() string {
-	if s.source != "" {
+	if s.source != "" || s.script == nil {
 		return s.source
 	}
 
