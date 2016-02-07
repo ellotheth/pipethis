@@ -87,7 +87,7 @@ but there's other stuff to do as well:
    Your Private Key®. It's a place to start, yo, just do it.
 
    Alternatively, you can hand out your public key at key signing parties
-   (because you're a Read Crypto Geek™, remember?), and tell people to import
+   (because you're a Real Crypto Geek™, remember?), and tell people to import
    it into their local public keyrings.
 2. Add one line to your installation script to identify yourself. You can throw
    it in a comment:
