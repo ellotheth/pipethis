@@ -38,11 +38,12 @@ func main() {
 	}()
 
 	var (
-		target    = flag.String("target", os.Getenv("SHELL"), "Executable to run the script")
-		inspect   = flag.Bool("inspect", false, "Open an editor to inspect the file before running it")
-		editor    = flag.String("editor", os.Getenv("EDITOR"), "Editor to inspect the script")
-		noVerify  = flag.Bool("no-verify", false, "Don't verify the author or signature")
-		sigSource = flag.String("signature", "", `Detached signature to verify. (default "<script location>.sig")`)
+		target      = flag.String("target", os.Getenv("SHELL"), "Executable to run the script")
+		inspect     = flag.Bool("inspect", false, "Open an editor to inspect the file before running it")
+		editor      = flag.String("editor", os.Getenv("EDITOR"), "Editor to inspect the script")
+		noVerify    = flag.Bool("no-verify", false, "Don't verify the author or signature")
+		sigSource   = flag.String("signature", "", `Detached signature to verify. (default "<script location>.sig")`)
+		serviceName = flag.String("lookup-with", "keybase", "Key lookup service to use. Could be 'keybase' or 'local'.")
 	)
 	flag.Parse()
 
@@ -76,7 +77,12 @@ func main() {
 			log.Panic(err)
 		}
 
-		key, err := lookup.Key(lookup.KeybaseService{}, author)
+		service, err := makeService(*serviceName)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		key, err := lookup.Key(service, author)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -142,4 +148,15 @@ func getLocal(location string) (io.ReadCloser, error) {
 	}
 
 	return os.Open(location)
+}
+
+func makeService(name string) (lookup.KeyService, error) {
+	switch name {
+	case "keybase":
+		return &lookup.KeybaseService{}, nil
+	case "local":
+		return lookup.NewLocalPGPService()
+	}
+
+	return nil, errors.New("Unrecognized key service")
 }

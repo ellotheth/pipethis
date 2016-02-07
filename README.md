@@ -38,12 +38,23 @@ drop it in your `$PATH`.
 ### People piping the installers
 
 ```
-pipethis [ --target <exe> | --inspect | --editor <editor> | --no-verify | --signature <signature file> ] <script>
+pipethis [ OPTIONS ] <script>
+
+OPTIONS
 
 --target <exe>
 
     The shell or other binary that will run the script. Defaults to the SHELL
     environment variable.
+
+--lookup-with <keybase,local>
+
+    The service you'll use to verify the author's identity:
+
+    keybase (default)
+        Use https://keybase.io
+    local
+        Use your local GnuPG public keyring
 
 --inspect
 
@@ -74,6 +85,10 @@ but there's other stuff to do as well:
 1. Get an account on [Keybase](https://keybase.io). I know, Real Crypto Geeks™
    hate Keybase because Browser Crypto Is Unsafe™ and They Can Store
    Your Private Key®. It's a place to start, yo, just do it.
+
+   Alternatively, you can hand out your public key at key signing parties
+   (because you're a Read Crypto Geek™, remember?), and tell people to import
+   it into their local public keyrings.
 2. Add one line to your installation script to identify yourself. You can throw
    it in a comment:
 
