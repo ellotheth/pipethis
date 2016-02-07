@@ -27,7 +27,7 @@ import (
 // Key gets the PGP public key for one user.
 type KeyService interface {
 	Matches(query string) ([]User, error)
-	Key(user string) (openpgp.EntityList, error)
+	Key(user User) (openpgp.EntityList, error)
 }
 
 // User represents an author's identity.
@@ -40,6 +40,7 @@ type User struct {
 	HackerNews  string
 	Reddit      string
 	Sites       []string
+	Emails      []string
 }
 
 // String returns a representation of all the User's identity details.
@@ -56,6 +57,10 @@ func (u User) String() string {
 
 	for _, site := range u.Sites {
 		s = s + fmt.Sprintf(format, "Site", site)
+	}
+
+	for _, email := range u.Emails {
+		s = s + fmt.Sprintf(format, "Email", email)
 	}
 
 	return s
@@ -111,7 +116,7 @@ func Key(service KeyService, query string) (openpgp.KeyRing, error) {
 	}
 
 	// get the public key for the selected author
-	ring, err := service.Key(match.Username)
+	ring, err := service.Key(match)
 	if err != nil {
 		return nil, err
 	}

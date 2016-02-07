@@ -115,14 +115,14 @@ func (k KeybaseService) Matches(query string) ([]User, error) {
 // Key finds the PGP public key for one Keybase user by Keybase username and
 // returns the key ring representation of the key. If the Keybase username is
 // invalid, or the key itself is missing or invalid, Key returns an error.
-func (k KeybaseService) Key(user string) (openpgp.EntityList, error) {
+func (k KeybaseService) Key(user User) (openpgp.EntityList, error) {
 
 	// I think I set this up to match Keybase's own username pattern. I think.
-	if matches, _ := regexp.MatchString(`^[a-zA-Z0-9_\-\.]+$`, user); !matches {
+	if matches, _ := regexp.MatchString(`^[a-zA-Z0-9_\-\.]+$`, user.Username); !matches {
 		return nil, errors.New("Invalid user requested")
 	}
 
-	resp, err := http.Get("https://keybase.io/" + user + "/key.asc")
+	resp, err := http.Get("https://keybase.io/" + user.Username + "/key.asc")
 	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
