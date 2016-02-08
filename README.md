@@ -4,6 +4,8 @@
 seemed too long.)
 
 [![GoDoc](https://godoc.org/github.com/ellotheth/pipethis?status.svg)](https://godoc.org/github.com/ellotheth/pipethis)
+[![Build Status](https://travis-ci.org/ellotheth/pipethis.svg?branch=master)](https://travis-ci.org/ellotheth/pipethis)
+
 ## `tl;dr`
 
 Instead of

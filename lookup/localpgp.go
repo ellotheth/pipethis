@@ -78,7 +78,7 @@ func (l *LocalPGPService) Matches(query string) ([]User, error) {
 			Fingerprint: key.PrimaryKey.KeyIdString(),
 		}
 
-		for name, _ := range key.Identities {
+		for name := range key.Identities {
 			user.Emails = append(user.Emails, name)
 		}
 

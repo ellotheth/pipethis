@@ -7,8 +7,8 @@ Use of this source code is governed by the GNU Public License version 2
 the source. If not, see http://www.gnu.org/licenses/gpl-2.0.html.
 */
 
-// lookup provides services that can look up identities and public keys for
-// script authors.
+// Package lookup provides services that can look up identities and public keys
+// for script authors.
 package lookup
 
 import (
