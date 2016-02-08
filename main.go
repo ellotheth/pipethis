@@ -6,6 +6,11 @@ Use of this source code is governed by the GNU Public License version 2
 (GPLv2). You should have received a copy of the GPLv2 along with your copy of
 the source. If not, see http://www.gnu.org/licenses/gpl-2.0.html.
 */
+
+// pipethis is designed to replace the common installation pattern of
+// `curl <script> |bash`. It provides a way for script authors to identify
+// themselves, and a way for script installers to cryptographically verify
+// an author's identity.
 package main
 
 import (

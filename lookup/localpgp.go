@@ -40,7 +40,7 @@ func NewLocalPGPService() (*LocalPGPService, error) {
 }
 
 // Ring loads the local public keyring so LocalPGPService can use it later. If
-// it's // already been loaded, Ring returns the existing version.
+// it's already been loaded, Ring returns the existing version.
 func (l *LocalPGPService) Ring() openpgp.EntityList {
 	if l.ring != nil {
 		return l.ring
@@ -109,7 +109,7 @@ func (l LocalPGPService) isMatch(query string, user User) bool {
 }
 
 // Key gets the PGP public key from the local public keyring for a user's
-// fingerprint and // returns the keyRing representation. If the fingerprint is
+// fingerprint and returns the keyRing representation. If the fingerprint is
 // invalid or more than one public key is found, Key returns an error.
 func (l *LocalPGPService) Key(user User) (openpgp.EntityList, error) {
 	id, err := strconv.ParseUint(user.Fingerprint, 16, 64)

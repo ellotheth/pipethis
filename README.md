@@ -3,6 +3,7 @@
 (I would have called it `stop-piping-the-internet-into-your-shell`, but that
 seemed too long.)
 
+[![GoDoc](https://godoc.org/github.com/ellotheth/pipethis?status.svg)](https://godoc.org/github.com/ellotheth/pipethis)
 ## `tl;dr`
 
 Instead of
