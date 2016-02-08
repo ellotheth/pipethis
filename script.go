@@ -25,18 +25,44 @@ type Script struct {
 	author   string
 	source   string
 	filename string
+	// piped if set signifies that the source is from stdin
+	piped bool
 }
 
 // NewScript copies the shell script specified in location (which may be local
 // or remote) to a temporary file and loads it into a Script.
-func NewScript(location string) (*Script, error) {
-	script := &Script{source: location}
-
+func NewScript(location string) (script *Script, err error) {
 	body, err := getFile(location)
 	if err != nil {
 		return nil, err
 	}
 	defer body.Close()
+
+	script, err = fnewScript(body)
+	if err != nil {
+		return
+	}
+
+	script.source = location
+	return
+}
+
+func FNewScript(r io.Reader) (script *Script, err error) {
+	script, err = fnewScript(r)
+	if err != nil {
+		return
+	}
+	script.piped = true
+	return
+}
+
+func fnewScript(r io.Reader) (*Script, error) {
+	// TODO: Detect if a reader is pipe-like
+	// ie like a named piped that could infinitely
+	// hang if content isn't read from it.
+	if r == nil {
+		return nil, fmt.Errorf("script body is nil")
+	}
 
 	file, err := ioutil.TempFile("", "pipethis-")
 	if err != nil {
@@ -44,8 +70,14 @@ func NewScript(location string) (*Script, error) {
 	}
 	defer file.Close()
 
-	io.Copy(file, body)
-	script.filename = file.Name()
+	n, err := io.Copy(file, r)
+	if n < 1 && err != nil {
+		return nil, err
+	}
+
+	script := &Script{
+		filename: file.Name(),
+	}
 
 	return script, nil
 }
@@ -120,4 +152,9 @@ func (s Script) Inspect(inspect bool, editor string) bool {
 	fmt.Scanf("%s", &runScript)
 
 	return strings.ToLower(runScript) == "y"
+}
+
+// Piped tells if a script was passed in from stdin
+func (s Script) Piped() bool {
+	return s.piped
 }

@@ -10,6 +10,7 @@ the source. If not, see http://www.gnu.org/licenses/gpl-2.0.html.
 package main
 
 import (
+	"io"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -60,6 +61,25 @@ func (s *ScriptTest) TestAuthorParsesFileForPattern() {
 	os.Remove(filename)
 
 }
+
+func TestPipedScripts(t *testing.T) {
+	pr, pw := io.Pipe()
+	go func() {
+		defer pw.Close()
+		io.WriteString(pw, "echo $HOME")
+	}()
+
+	script, err := FNewScript(pr)
+	assert.NoError(t, err)
+
+	if script == nil {
+		assert.Fail(t, "script was parsed successfully but is nil")
+	}
+	if !script.Piped() {
+		assert.Fail(t, "script was piped so .Piped() should return true")
+	}
+}
+
 func providerTestAuthorInvalid() [][]string {
 	return [][]string{
 		[]string{"", ``},
