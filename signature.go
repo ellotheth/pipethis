@@ -42,7 +42,7 @@ func (s Signature) Name() string {
 // Source is the original location of the signature file. It defaults to
 // <script source>.sig.
 func (s *Signature) Source() string {
-	if s.source != "" || s.script == nil {
+	if s.source != "" || s.script == nil || s.script.clearsigned {
 		return s.source
 	}
 
@@ -53,6 +53,10 @@ func (s *Signature) Source() string {
 
 // Download saves the signature to a temporary file.
 func (s *Signature) Download() error {
+	if s.script != nil && s.script.clearsigned {
+		return nil
+	}
+
 	source := s.Source()
 	if source == "" {
 		return errors.New("Signature source location not found")

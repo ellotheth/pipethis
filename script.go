@@ -25,9 +25,10 @@ import (
 
 // Script represents a shell script to be inspected, verified, and run.
 type Script struct {
-	author   string
-	source   string
-	filename string
+	author      string
+	source      string
+	filename    string
+	clearsigned bool
 }
 
 // NewScript copies the shell script specified in location (which may be local
@@ -54,41 +55,50 @@ func NewScript(location string) (*Script, error) {
 		return nil, err
 	}
 
-	block, rest := clearsign.Decode(contents)
-
-	// if the signature is not attached, copy the raw contents to the temp file
-	// and we're done
-	if block == nil {
-		_, err := file.Write(rest)
-		if err != nil {
-			return nil, err
-		}
-
-		return script, nil
-	}
-
-	// write the script contents, without the attached signature
-	_, err = file.WriteString(strings.Replace(string(block.Bytes), "\r", "", -1))
+	contents, err = script.detachSignature(contents)
 	if err != nil {
 		return nil, err
 	}
 
-	// write the armored signature
-	sig, err := os.Create(script.filename + ".sig")
+	_, err = file.Write(contents)
+	if err != nil {
+		return nil, err
+	}
+
+	return script, nil
+}
+
+func (s *Script) detachSignature(contents []byte) ([]byte, error) {
+	block, _ := clearsign.Decode(contents)
+
+	// if the signature is not attached, return the contents without
+	// modification
+	if block == nil {
+		return contents, nil
+	}
+
+	s.clearsigned = true
+
+	// get the raw script, without the signature or PGP headers, and without
+	// the CRs
+	contents = []byte(strings.Replace(string(block.Bytes), "\r", "", -1))
+
+	// create a file for the armored signature
+	sig, err := os.Create(s.filename + ".sig")
 	if err != nil {
 		return nil, err
 	}
 	defer sig.Close()
 
+	// write the armored signature
 	sigWriter, err := armor.Encode(sig, "PGP SIGNATURE", block.ArmoredSignature.Header)
 	if err != nil {
 		return nil, err
 	}
 	defer sigWriter.Close()
-
 	io.Copy(sigWriter, block.ArmoredSignature.Body)
 
-	return script, nil
+	return contents, nil
 }
 
 // Name is the name of the temporary file holding the shell script.
