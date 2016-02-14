@@ -31,6 +31,16 @@ func (s *SigTest) TestSourceBuildsFromScript() {
 	s.Equal("scriptsource.sig", sig.Source())
 }
 
+func (s *SigTest) TestSourceEmptyWithClearsignedScript() {
+	sig := Signature{script: &Script{clearsigned: true}}
+	s.Equal("", sig.Source())
+}
+
+func (s *SigTest) TestDownloadIsNoopWithClearsignedScript() {
+	sig := Signature{script: &Script{clearsigned: true}}
+	s.NoError(sig.Download())
+}
+
 func (s *SigTest) TestDownloadFailsWithoutSource() {
 	sig := Signature{}
 	s.Error(sig.Download())
