@@ -10,6 +10,7 @@ the source. If not, see http://www.gnu.org/licenses/gpl-2.0.html.
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -81,7 +82,7 @@ func (s *Script) detachSignature(contents []byte) ([]byte, error) {
 
 	// get the raw script, without the signature or PGP headers, and without
 	// the CRs
-	contents = []byte(strings.Replace(string(block.Bytes), "\r", "", -1))
+	contents = bytes.Replace(block.Bytes, []byte{0x0d}, nil, -1)
 
 	// create a file for the armored signature
 	sig, err := os.Create(s.filename + ".sig")
