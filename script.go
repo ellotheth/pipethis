@@ -18,6 +18,9 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"golang.org/x/crypto/openpgp/armor"
+	"golang.org/x/crypto/openpgp/clearsign"
 )
 
 // Script represents a shell script to be inspected, verified, and run.
@@ -44,8 +47,46 @@ func NewScript(location string) (*Script, error) {
 	}
 	defer file.Close()
 
-	io.Copy(file, body)
 	script.filename = file.Name()
+
+	contents, err := ioutil.ReadAll(body)
+	if err != nil {
+		return nil, err
+	}
+
+	block, rest := clearsign.Decode(contents)
+
+	// if the signature is not attached, copy the raw contents to the temp file
+	// and we're done
+	if block == nil {
+		_, err := file.Write(rest)
+		if err != nil {
+			return nil, err
+		}
+
+		return script, nil
+	}
+
+	// write the script contents, without the attached signature
+	_, err = file.WriteString(strings.Replace(string(block.Bytes), "\r", "", -1))
+	if err != nil {
+		return nil, err
+	}
+
+	// write the armored signature
+	sig, err := os.Create(script.filename + ".sig")
+	if err != nil {
+		return nil, err
+	}
+	defer sig.Close()
+
+	sigWriter, err := armor.Encode(sig, "PGP SIGNATURE", block.ArmoredSignature.Header)
+	if err != nil {
+		return nil, err
+	}
+	defer sigWriter.Close()
+
+	io.Copy(sigWriter, block.ArmoredSignature.Body)
 
 	return script, nil
 }
