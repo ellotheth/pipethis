@@ -3,6 +3,9 @@ language: go
 env:
     global:
         - PATH="$HOME/gopath/bin:$HOME/bin:$PATH"
+notifications:
+    email:
+        on_success: never
 
 go:
     - 1.4.3
