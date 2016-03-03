@@ -52,11 +52,6 @@ func main() {
 	)
 	flag.Parse()
 
-	if _, err := os.Stat(*target); os.IsNotExist(err) {
-		log.Panic("Script executable does not exist")
-	}
-	log.Println("Using script executable", *target)
-
 	// download the script, store it someplace temporary
 	script, err := NewScript(flag.Arg(0))
 	if err != nil {
@@ -64,6 +59,15 @@ func main() {
 	}
 	defer os.Remove(script.Name())
 	log.Println("Script saved to", script.Name())
+
+	// if we're not reading from a pipe we need a target executable
+	if !script.IsPiped() {
+		if _, err := os.Stat(*target); os.IsNotExist(err) {
+			log.Panic("Script executable does not exist")
+		}
+
+		log.Println("Using script executable", *target)
+	}
 
 	// let the user look at it if they want
 	if cont := script.Inspect(*inspect, *editor); !cont {
@@ -77,11 +81,13 @@ func main() {
 			log.Panic(err)
 		}
 
+		// todo force local keyring for piped input
 		service, err := makeService(*serviceName)
 		if err != nil {
 			log.Panic(err)
 		}
 
+		// todo this needs to only return one match for piped input
 		key, err := lookup.Key(service, author)
 		if err != nil {
 			log.Panic(err)
@@ -98,8 +104,11 @@ func main() {
 	}
 
 	// run the script
-	log.Println("Running", script.Name(), "with", *target)
-	script.Run(*target, flag.Args()...)
+	if script.IsPiped() {
+		script.Echo()
+	} else {
+		script.Run(*target, flag.Args()...)
+	}
 }
 
 func parseToken(pattern string, reader io.Reader) string {

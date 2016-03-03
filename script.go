@@ -102,6 +102,10 @@ func (s *Script) detachSignature(contents []byte) ([]byte, error) {
 	return contents, nil
 }
 
+func (s Script) IsPiped() bool {
+	return s.source == ""
+}
+
 // Name is the name of the temporary file holding the shell script.
 func (s Script) Name() string {
 	return s.filename
@@ -143,6 +147,8 @@ func (s *Script) Author() (string, error) {
 // additional arguments from the command line. It returns the result of the
 // process.
 func (s Script) Run(target string, args ...string) error {
+	log.Println("Running", s.Name(), "with", target)
+
 	if s.source == "" {
 		args = append([]string{s.Name()}, args...)
 	} else {
@@ -155,11 +161,19 @@ func (s Script) Run(target string, args ...string) error {
 	return cmd.Run()
 }
 
+func (s Script) Echo() {
+	log.Println("Sending", s.Name(), "to STDOUT for more processing")
+	body, _ := s.Body()
+	defer body.Close()
+
+	io.Copy(os.Stdout, body)
+}
+
 // Inspect checks whether an inspection was requested, and sends Script.Name()
 // to editor if so. When editor exits, Inspect prompts the user to continue
 // processing, and returns true to continue or false to stop.
 func (s Script) Inspect(inspect bool, editor string) bool {
-	if !inspect {
+	if !inspect || s.IsPiped() {
 		return true
 	}
 
