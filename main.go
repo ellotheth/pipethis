@@ -86,8 +86,7 @@ func main() {
 			log.Panic(err)
 		}
 
-		// todo this needs to only return one match for piped input
-		key, err := lookup.Key(service, author)
+		key, err := lookup.Key(service, author, script.IsPiped())
 		if err != nil {
 			log.Panic(err)
 		}
