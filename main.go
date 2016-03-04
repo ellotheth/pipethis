@@ -103,9 +103,12 @@ func main() {
 
 	// run the script
 	if script.IsPiped() {
-		script.Echo()
+		err = script.Echo()
 	} else {
-		script.Run(*target, flag.Args()...)
+		err = script.Run(*target, flag.Args()...)
+	}
+	if err != nil {
+		log.Panic(err)
 	}
 }
 

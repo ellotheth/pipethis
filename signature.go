@@ -74,7 +74,10 @@ func (s *Signature) Download() error {
 	}
 	defer file.Close()
 
-	io.Copy(file, body)
+	_, err = io.Copy(file, body)
+	if err != nil {
+		return nil
+	}
 
 	return nil
 }

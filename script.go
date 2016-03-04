@@ -97,7 +97,11 @@ func (s *Script) detachSignature(contents []byte) ([]byte, error) {
 		return nil, err
 	}
 	defer sigWriter.Close()
-	io.Copy(sigWriter, block.ArmoredSignature.Body)
+
+	_, err = io.Copy(sigWriter, block.ArmoredSignature.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	return contents, nil
 }
@@ -162,12 +166,21 @@ func (s Script) Run(target string, args ...string) error {
 }
 
 // Echo prints the contents of the script to STDOUT
-func (s Script) Echo() {
+func (s Script) Echo() error {
 	log.Println("Sending", s.Name(), "to STDOUT for more processing")
-	body, _ := s.Body()
+
+	body, err := s.Body()
+	if err != nil {
+		return err
+	}
 	defer body.Close()
 
-	io.Copy(os.Stdout, body)
+	_, err = io.Copy(os.Stdout, body)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Inspect checks whether an inspection was requested, and sends Script.Name()
