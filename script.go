@@ -149,11 +149,9 @@ func (s *Script) Author() (string, error) {
 func (s Script) Run(target string, args ...string) error {
 	log.Println("Running", s.Name(), "with", target)
 
-	if s.source == "" {
-		args = append([]string{s.Name()}, args...)
-	} else {
-		args[0] = s.Name()
-	}
+	// the first argument is the script source location. replace it with the
+	// temporary filename.
+	args[0] = s.Name()
 
 	cmd := exec.Command(target, args...)
 	cmd.Stdout = os.Stdout
