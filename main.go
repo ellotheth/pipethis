@@ -145,19 +145,12 @@ func getFromStdin() (io.ReadCloser, error) {
 		return nil, err
 	}
 
+	// could also use os.ModeNamedPipe here? not sure if the difference matters
 	if (stat.Mode() & os.ModeCharDevice) != 0 {
 		return nil, errors.New("No data in STDIN")
 	}
 
 	return os.Stdin, nil
-	// return ioutil.NopCloser(bufio.NewReader(os.Stdin)), nil
-
-	// body, err := ioutil.ReadAll(os.Stdin)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return ioutil.NopCloser(bytes.NewReader(body)), nil
 }
 
 func getRemote(location string) (io.ReadCloser, error) {
