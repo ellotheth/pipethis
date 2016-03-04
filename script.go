@@ -102,6 +102,8 @@ func (s *Script) detachSignature(contents []byte) ([]byte, error) {
 	return contents, nil
 }
 
+// IsPiped is true when the script was read from STDIN (so the source location
+// is empty)
 func (s Script) IsPiped() bool {
 	return s.source == ""
 }
@@ -159,6 +161,7 @@ func (s Script) Run(target string, args ...string) error {
 	return cmd.Run()
 }
 
+// Echo prints the contents of the script to STDOUT
 func (s Script) Echo() {
 	log.Println("Sending", s.Name(), "to STDOUT for more processing")
 	body, _ := s.Body()
