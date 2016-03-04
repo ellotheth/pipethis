@@ -69,6 +69,24 @@ func (u User) String() string {
 	return s
 }
 
+// NewKeyService creates the KeyService implementation requested by name. If
+// fromPipe is true, it creates a LocalPGPService type.
+func NewKeyService(name string, fromPipe bool) (KeyService, error) {
+	// force the local keyring when reading the script from a pipe
+	if fromPipe {
+		name = "local"
+	}
+
+	switch name {
+	case "keybase":
+		return &KeybaseService{}, nil
+	case "local":
+		return NewLocalPGPService()
+	}
+
+	return nil, errors.New("Unrecognized key service")
+}
+
 // chooseMatch prints all the matches provided, prompts for a choice, and
 // returns the chosen match.
 func chooseMatch(matches []User) (User, error) {

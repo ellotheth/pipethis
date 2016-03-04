@@ -81,7 +81,7 @@ func main() {
 			log.Panic(err)
 		}
 
-		service, err := makeService(*serviceName, script.IsPiped())
+		service, err := lookup.NewKeyService(*serviceName, script.IsPiped())
 		if err != nil {
 			log.Panic(err)
 		}
@@ -173,20 +173,4 @@ func getLocal(location string) (io.ReadCloser, error) {
 	}
 
 	return os.Open(location)
-}
-
-func makeService(name string, fromPipe bool) (lookup.KeyService, error) {
-	// force the local keyring when reading the script from a pipe
-	if fromPipe {
-		name = "local"
-	}
-
-	switch name {
-	case "keybase":
-		return &lookup.KeybaseService{}, nil
-	case "local":
-		return lookup.NewLocalPGPService()
-	}
-
-	return nil, errors.New("Unrecognized key service")
 }
