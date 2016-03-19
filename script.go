@@ -97,9 +97,19 @@ func (s *Script) detachSignature(contents []byte) ([]byte, error) {
 		return nil, err
 	}
 	defer sigWriter.Close()
-	io.Copy(sigWriter, block.ArmoredSignature.Body)
+
+	_, err = io.Copy(sigWriter, block.ArmoredSignature.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	return contents, nil
+}
+
+// IsPiped is true when the script was read from STDIN (so the source location
+// is empty)
+func (s Script) IsPiped() bool {
+	return s.source == ""
 }
 
 // Name is the name of the temporary file holding the shell script.
@@ -143,6 +153,10 @@ func (s *Script) Author() (string, error) {
 // additional arguments from the command line. It returns the result of the
 // process.
 func (s Script) Run(target string, args ...string) error {
+	log.Println("Running", s.Name(), "with", target)
+
+	// the first argument is the script source location. replace it with the
+	// temporary filename.
 	args[0] = s.Name()
 
 	cmd := exec.Command(target, args...)
@@ -151,11 +165,29 @@ func (s Script) Run(target string, args ...string) error {
 	return cmd.Run()
 }
 
+// Echo prints the contents of the script to STDOUT
+func (s Script) Echo() error {
+	log.Println("Sending", s.Name(), "to STDOUT for more processing")
+
+	body, err := s.Body()
+	if err != nil {
+		return err
+	}
+	defer body.Close()
+
+	_, err = io.Copy(os.Stdout, body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Inspect checks whether an inspection was requested, and sends Script.Name()
 // to editor if so. When editor exits, Inspect prompts the user to continue
 // processing, and returns true to continue or false to stop.
 func (s Script) Inspect(inspect bool, editor string) bool {
-	if !inspect {
+	if !inspect || s.IsPiped() {
 		return true
 	}
 
@@ -172,4 +204,10 @@ func (s Script) Inspect(inspect bool, editor string) bool {
 	fmt.Scanf("%s", &runScript)
 
 	return strings.ToLower(runScript) == "y"
+}
+
+// IsClearsigned returns true if the script and signature are attached,
+// and false otherwise.
+func (s Script) IsClearsigned() bool {
+	return s.clearsigned
 }

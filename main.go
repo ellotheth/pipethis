@@ -38,6 +38,7 @@ func main() {
 	// still happen.
 	defer func() {
 		if r := recover(); r != nil {
+			flag.Usage()
 			os.Exit(1)
 		}
 	}()
@@ -52,16 +53,6 @@ func main() {
 	)
 	flag.Parse()
 
-	if len(flag.Args()) < 1 {
-		flag.Usage()
-		log.Panic("No script specified")
-	}
-
-	if _, err := os.Stat(*target); os.IsNotExist(err) {
-		log.Panic("Script executable does not exist")
-	}
-	log.Println("Using script executable", *target)
-
 	// download the script, store it someplace temporary
 	script, err := NewScript(flag.Arg(0))
 	if err != nil {
@@ -69,6 +60,15 @@ func main() {
 	}
 	defer os.Remove(script.Name())
 	log.Println("Script saved to", script.Name())
+
+	// if we're not reading from a pipe we need a target executable
+	if !script.IsPiped() {
+		if _, err := os.Stat(*target); os.IsNotExist(err) {
+			log.Panic("Script executable does not exist")
+		}
+
+		log.Println("Using script executable", *target)
+	}
 
 	// let the user look at it if they want
 	if cont := script.Inspect(*inspect, *editor); !cont {
@@ -82,12 +82,12 @@ func main() {
 			log.Panic(err)
 		}
 
-		service, err := makeService(*serviceName)
+		service, err := lookup.NewKeyService(*serviceName, script.IsPiped())
 		if err != nil {
 			log.Panic(err)
 		}
 
-		key, err := lookup.Key(service, author)
+		key, err := lookup.Key(service, author, script.IsPiped())
 		if err != nil {
 			log.Panic(err)
 		}
@@ -99,12 +99,18 @@ func main() {
 			log.Panic(err)
 		}
 
-		log.Println("Signature", signature.Source(), "verified!")
+		log.Println("Signature verified!")
 	}
 
 	// run the script
-	log.Println("Running", script.Name(), "with", *target)
-	script.Run(*target, flag.Args()...)
+	if script.IsPiped() {
+		err = script.Echo()
+	} else {
+		err = script.Run(*target, flag.Args()...)
+	}
+	if err != nil {
+		log.Panic(err)
+	}
 }
 
 func parseToken(pattern string, reader io.Reader) string {
@@ -125,12 +131,30 @@ func parseToken(pattern string, reader io.Reader) string {
 
 // getFile tries to find location locally first, then tries remote
 func getFile(location string) (io.ReadCloser, error) {
+	if location == "" {
+		return getFromStdin()
+	}
+
 	body, err := getLocal(location)
 	if err == nil {
 		return body, nil
 	}
 
 	return getRemote(location)
+}
+
+func getFromStdin() (io.ReadCloser, error) {
+	stat, err := os.Stdin.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	// could also use os.ModeNamedPipe here? not sure if the difference matters
+	if (stat.Mode() & os.ModeCharDevice) != 0 {
+		return nil, errors.New("Nothing to read from STDIN and no script given")
+	}
+
+	return os.Stdin, nil
 }
 
 func getRemote(location string) (io.ReadCloser, error) {
@@ -153,15 +177,4 @@ func getLocal(location string) (io.ReadCloser, error) {
 	}
 
 	return os.Open(location)
-}
-
-func makeService(name string) (lookup.KeyService, error) {
-	switch name {
-	case "keybase":
-		return &lookup.KeybaseService{}, nil
-	case "local":
-		return lookup.NewLocalPGPService()
-	}
-
-	return nil, errors.New("Unrecognized key service")
 }

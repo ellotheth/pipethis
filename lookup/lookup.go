@@ -69,6 +69,24 @@ func (u User) String() string {
 	return s
 }
 
+// NewKeyService creates the KeyService implementation requested by name. If
+// fromPipe is true, it creates a LocalPGPService type.
+func NewKeyService(name string, fromPipe bool) (KeyService, error) {
+	// force the local keyring when reading the script from a pipe
+	if fromPipe {
+		name = "local"
+	}
+
+	switch name {
+	case "keybase":
+		return &KeybaseService{}, nil
+	case "local":
+		return NewLocalPGPService()
+	}
+
+	return nil, errors.New("Unrecognized key service")
+}
+
 // chooseMatch prints all the matches provided, prompts for a choice, and
 // returns the chosen match.
 func chooseMatch(matches []User) (User, error) {
@@ -101,19 +119,39 @@ func chooseMatch(matches []User) (User, error) {
 	return matches[n], nil
 }
 
+func chooseSingleMatch(matches []User) (User, error) {
+	if len(matches) != 1 {
+		return User{}, fmt.Errorf("Found %d author matches; need exactly 1 when reading from STDIN", len(matches))
+	}
+
+	return matches[0], nil
+}
+
 // Key looks up an author query in the provided KeyService, and prompts for a
-// choice of matches. It returns an error if no matches were found, if no match
-// was chosen, or if no PGP public was found.
-func Key(service KeyService, query string) (openpgp.KeyRing, error) {
+// choice of matches (if single is false) or automatically chooses the matched
+// user when there is one and only one match (if single is true). It returns an
+// error if no matches were found, if no match was chosen, or if no PGP public
+// was found.
+func Key(service KeyService, query string, single bool) (openpgp.KeyRing, error) {
 	// get possible matches from the key service
 	matches, err := service.Matches(query)
 	if err != nil {
 		return nil, err
 	}
 
+	if len(matches) < 1 {
+		return nil, errors.New("No author matches found for " + query)
+	}
+
 	// verify that the author is who the user was expecting by showing all the
 	// details (twitter handle, github handle, websites, etc.)
-	match, err := chooseMatch(matches)
+	var match User
+	if single {
+		match, err = chooseSingleMatch(matches)
+	} else {
+		match, err = chooseMatch(matches)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +161,7 @@ func Key(service KeyService, query string) (openpgp.KeyRing, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Using %v (%v)", match.Username, ring[0].PrimaryKey.KeyIdShortString())
+	log.Printf("Verifying your script against\n%v", match)
 
 	return ring, nil
 }
