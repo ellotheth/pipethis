@@ -205,3 +205,9 @@ func (s Script) Inspect(inspect bool, editor string) bool {
 
 	return strings.ToLower(runScript) == "y"
 }
+
+// IsClearsigned returns true if the script and signature are attached,
+// and false otherwise.
+func (s Script) IsClearsigned() bool {
+	return s.clearsigned
+}

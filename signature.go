@@ -42,7 +42,7 @@ func (s Signature) Name() string {
 // Source is the original location of the signature file. It defaults to
 // <script source>.sig.
 func (s *Signature) Source() string {
-	if s.source != "" || s.script == nil || s.script.clearsigned {
+	if s.source != "" || s.script == nil || s.script.IsClearsigned() || s.script.IsPiped() {
 		return s.source
 	}
 
@@ -53,18 +53,18 @@ func (s *Signature) Source() string {
 
 // Download saves the signature to a temporary file.
 func (s *Signature) Download() error {
-	if s.script != nil && s.script.clearsigned {
+	if s.script != nil && s.script.IsClearsigned() {
 		return nil
 	}
 
 	source := s.Source()
 	if source == "" {
-		return errors.New("Signature source location not found")
+		return errors.New("The signature source location is missing")
 	}
 
 	body, err := getFile(source)
 	if err != nil {
-		return err
+		return errors.New("Couldn't open the signature source file at " + source)
 	}
 	defer body.Close()
 
@@ -92,7 +92,7 @@ func (s *Signature) Body() (ReadSeekCloser, error) {
 	if os.IsNotExist(err) || info.Size() == 0 {
 		err := s.Download()
 		if err != nil {
-			return nil, err
+			return nil, errors.New(err.Error() + " (do you need to set -signature?)")
 		}
 	}
 

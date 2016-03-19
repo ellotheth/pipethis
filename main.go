@@ -38,6 +38,7 @@ func main() {
 	// still happen.
 	defer func() {
 		if r := recover(); r != nil {
+			flag.Usage()
 			os.Exit(1)
 		}
 	}()
@@ -150,7 +151,7 @@ func getFromStdin() (io.ReadCloser, error) {
 
 	// could also use os.ModeNamedPipe here? not sure if the difference matters
 	if (stat.Mode() & os.ModeCharDevice) != 0 {
-		return nil, errors.New("No data in STDIN")
+		return nil, errors.New("Nothing to read from STDIN and no script given")
 	}
 
 	return os.Stdin, nil
