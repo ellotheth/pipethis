@@ -27,6 +27,12 @@ import (
 	"github.com/ellotheth/pipethis/lookup"
 )
 
+var (
+	bin     string
+	build   string
+	builder string
+)
+
 // ReadSeekCloser combines io.ReadSeeker and io.Closer, because I'm super lazy
 type ReadSeekCloser interface {
 	io.ReadSeeker
@@ -50,8 +56,14 @@ func main() {
 		noVerify    = flag.Bool("no-verify", false, "Don't verify the author or signature")
 		sigSource   = flag.String("signature", "", `Detached signature to verify. (default "<script location>.sig")`)
 		serviceName = flag.String("lookup-with", "keybase", "Key lookup service to use. Could be 'keybase' or 'local'.")
+		version     = flag.Bool("version", false, "Print the pipethis version information and exit")
 	)
 	flag.Parse()
+
+	if *version {
+		log.Println(bin, build, "("+builder+")")
+		return
+	}
 
 	// download the script, store it someplace temporary
 	script, err := NewScript(flag.Arg(0))
