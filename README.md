@@ -27,6 +27,13 @@ improve your life)
 $ pipethis --no-verify --inspect https://get.rvm.io
 ```
 
+or even
+
+```
+$ curl -sSL https://get.rvm.io | pipethis --no-verify | bash
+```
+
+
 ## Install
 
 ```
@@ -59,9 +66,13 @@ OPTIONS
     local
         Use your local GnuPG public keyring
 
+    If you're piping a script from `stdin`, the service will be forced to
+    `local`.
+
 --inspect
 
-    If set, open the script in an editor before checking the author.
+    If set, open the script in an editor before checking the author. Ignored if
+    you're piping a script from `stdin`.
 
 --editor <editor>
 
@@ -75,10 +86,19 @@ OPTIONS
 
 --signature <signature file>
 
-	The detached signature to verify <script> against. You'll only need this if
-	you've already downloaded the detached signature, or it's hosted in a
-	non-standard location (i.e. it's not <script>.sig).
+	The detached signature to verify <script> against. You'll only need this in
+    a couple scenarios:
+
+    - You've already downloaded the detached signature and you want to use your
+      downloaded copy, or
+    - the signature is hosted in a non-standard location (i.e. it's not
+      <script>.sig), or
+    - you're piping a script with a detached signature from `stdin`.
 ```
+
+If you're piping scripts into `pipethis` directly from `curl`, you'll need
+to have the script authors' PGP keys already stored in your local keyring.
+Don't worry, they'll have instructions!
 
 ### People writing the installers
 
@@ -99,7 +119,7 @@ but there's other stuff to do as well:
     # // ; '' PIPETHIS_AUTHOR your_name_or_your_key_fingerprint
     ```
 
-3. Create a detached signature for the script. With Keybase, that's:
+3. Create a signature for the script. With Keybase, that's:
 
     ```
     $ keybase pgp sign -i yourscript.sh -d -o yourscript.sh.sig
@@ -111,9 +131,20 @@ but there's other stuff to do as well:
     $ gpg --detach-sign -a -o yourscript.sh.sig yourscript.sh
     ```
 
-	Both those commands create ASCII-armored signatures. Binary signatures work
-	too.
-4. Pop both the script and the signature up on your web server.
+   Both those commands create ASCII-armored signatures. Binary signatures work
+   too.
+
+   Alternatively, you can clearsign the script with an attached signature::
+
+    ```
+    $ keybase pgp sign -i yourscript.unsigned.sh -c -o yourscript.sh
+    ```
+
+    ```
+    $ gpg --clearsign -a -o yourscript.sh yourscript.unsigned.sh
+    ```
+
+4. Pop the script (and the signature, if it's detached) up on your web server.
 5. Replace your copy-paste-able installation instructions!
 
 ## What's all this noise
@@ -225,8 +256,6 @@ that you almost pwned yourself.
 
 `pipethis` works, but it can be better!
 
-- If there were a non-interactive version, it could be inserted into a pipe
-  chain like `curl -Ss http://pwn.me/please | pipethis | bash`. That'd be cool.
 - There are zillions of other places to get public keys for people, and I want
   to support more of them. I think Keybase is stellar and I love what they're
   trying to do, but nobody likes to be locked in to one provider.
