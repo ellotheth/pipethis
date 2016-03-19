@@ -12,7 +12,7 @@ test: deps lint
 
 .PHONY: build
 build: deps
-	go build -o $(bin) -ldflags "-w -X main.bin=$(bin) -X main.build=$(build) -X main.builder=$(goversion)"
+	go build -o $(bin) -ldflags "-w -s -X main.bin=$(bin) -X main.build=$(build) -X main.builder=$(goversion)"
 
 .PHONY: clean
 clean: dist-clean
