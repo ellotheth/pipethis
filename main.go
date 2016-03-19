@@ -98,7 +98,7 @@ func main() {
 			log.Panic(err)
 		}
 
-		log.Println("Signature", signature.Source(), "verified!")
+		log.Println("Signature verified!")
 	}
 
 	// run the script

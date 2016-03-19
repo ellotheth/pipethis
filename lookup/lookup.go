@@ -157,7 +157,7 @@ func Key(service KeyService, query string, single bool) (openpgp.KeyRing, error)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Using %v (%v)", match.Username, ring[0].PrimaryKey.KeyIdShortString())
+	log.Printf("Verifying your script against\n%v", match)
 
 	return ring, nil
 }
