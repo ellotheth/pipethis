@@ -139,6 +139,10 @@ func Key(service KeyService, query string, single bool) (openpgp.KeyRing, error)
 		return nil, err
 	}
 
+	if len(matches) < 1 {
+		return nil, errors.New("No author matches found for " + query)
+	}
+
 	// verify that the author is who the user was expecting by showing all the
 	// details (twitter handle, github handle, websites, etc.)
 	var match User
