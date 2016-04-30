@@ -43,7 +43,7 @@ func (s *LookupTest) TestNewKeyServiceForcesLocalWithPipe() {
 
 	perr, ok := err.(*os.PathError)
 	s.True(ok)
-	s.Equal("/tmp/.gnupg/pubring.gpg", perr.Path)
+	s.Equal(os.Getenv("HOME")+".gnupg/pubring.gpg", perr.Path)
 }
 
 func (s *LookupTest) TestChooseSingleMatchBailsWithoutMatches() {
