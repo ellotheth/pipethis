@@ -11,6 +11,7 @@ package lookup
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -23,7 +24,7 @@ type LookupTest struct {
 
 func (s *LookupTest) SetupSuite() {
 	s.home = os.Getenv("HOME")
-	os.Setenv("HOME", os.TempDir())
+	os.Setenv("HOME", strings.TrimRight(os.TempDir(), "/"))
 }
 
 func (s *LookupTest) TeardownSuite() {
@@ -43,7 +44,7 @@ func (s *LookupTest) TestNewKeyServiceForcesLocalWithPipe() {
 
 	perr, ok := err.(*os.PathError)
 	s.True(ok)
-	s.Equal(os.Getenv("HOME")+".gnupg/pubring.gpg", perr.Path)
+	s.Equal(os.Getenv("HOME")+"/.gnupg/pubring.gpg", perr.Path)
 }
 
 func (s *LookupTest) TestChooseSingleMatchBailsWithoutMatches() {
