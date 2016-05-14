@@ -10,9 +10,9 @@ the source. If not, see http://www.gnu.org/licenses/gpl-2.0.html.
 package lookup
 
 import (
-	"testing"
-
 	"github.com/stretchr/testify/suite"
+	"os"
+	"testing"
 )
 
 type LocalPGPTest struct {
@@ -46,6 +46,13 @@ func (s *LocalPGPTest) TestIsMatchFailsWithoutMatches() {
 	user := User{}
 
 	s.False(local.isMatch("foo", user))
+}
+
+func (s *LocalPGPTest) TestGnupgHomeOverride() {
+	os.Setenv("GNUPGHOME", "/foo")
+	_, err := NewLocalPGPService()
+	s.True(err.Error() == "stat /foo/pubring.gpg: no such file or directory")
+	os.Unsetenv("GNUPGHOME")
 }
 
 func TestLocalPGPTest(t *testing.T) {

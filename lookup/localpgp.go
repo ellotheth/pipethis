@@ -30,14 +30,14 @@ type LocalPGPService struct {
 // public keyring; otherwise it bails.
 func NewLocalPGPService() (*LocalPGPService, error) {
 
-	home := os.Getenv("HOME")
+	gnupgHome := path.Join(os.Getenv("HOME"), ".gnupg")
 
 	// Check if an override for GNUPG home is set
 	if os.Getenv("GNUPGHOME") != "" {
-		home = os.Getenv("GNUPGHOME")
+		gnupgHome = os.Getenv("GNUPGHOME")
 	}
 
-	ringfile := path.Join(home, ".gnupg", "pubring.gpg")
+	ringfile := path.Join(gnupgHome, "pubring.gpg")
 
 	info, err := os.Stat(ringfile)
 	if err != nil || info.Size() == 0 {
