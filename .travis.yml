@@ -9,7 +9,7 @@ notifications:
 
 go:
     - 1.5.3
-    - 1.6
+    - 1.6.2
     - tip
 
 script:
