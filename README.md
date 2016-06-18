@@ -36,12 +36,22 @@ $ curl -sSL https://get.rvm.io | pipethis --no-verify | bash
 
 ## Install
 
+### Golang
+
 ```
 $ go get github.com/ellotheth/pipethis
 ```
 
-or [download the binary](https://github.com/ellotheth/pipethis/releases) and
-drop it in your `$PATH`.
+### MacOSX
+
+```
+$ brew tap dennisdegreef/pipethis
+$ brew install pipethis
+```
+
+### Manual
+
+[download the binary](https://github.com/ellotheth/pipethis/releases) and drop it in your `$PATH`.
 
 ## Use
 
