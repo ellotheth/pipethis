@@ -29,14 +29,27 @@ type LocalPGPService struct {
 // NewLocalPGPService creates a new LocalPGPService if it finds a local
 // public keyring; otherwise it bails.
 func NewLocalPGPService() (*LocalPGPService, error) {
-	ringfile := path.Join(os.Getenv("HOME"), ".gnupg", "pubring.gpg")
 
-	info, err := os.Stat(ringfile)
+	service := &LocalPGPService{}
+	service.buildRingfileName()
+
+	info, err := os.Stat(service.ringfile)
 	if err != nil || info.Size() == 0 {
 		return nil, err
 	}
 
-	return &LocalPGPService{ringfile: ringfile}, nil
+	return service, nil
+}
+
+func (l *LocalPGPService) buildRingfileName() {
+	gnupgHome := path.Join(os.Getenv("HOME"), ".gnupg")
+
+	// Check if an override for GNUPG home is set
+	if os.Getenv("GNUPGHOME") != "" {
+		gnupgHome = os.Getenv("GNUPGHOME")
+	}
+
+	l.ringfile = path.Join(gnupgHome, "pubring.gpg")
 }
 
 // Ring loads the local public keyring so LocalPGPService can use it later. If
