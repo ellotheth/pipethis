@@ -7,18 +7,19 @@ env:
     global:
         - PATH="$HOME/gopath/bin:$HOME/bin:$PATH"
 
-matrix:
-    include:
-        - os: linux
-          go: tip
+# need to fix the linter before enabling tip again
+# matrix:
+#     include:
+#         - os: linux
+#           go: tip
 
 notifications:
     email:
         on_success: never
 
 go:
-    - 1.5.4
-    - 1.6.2
+    - 1.6.4
+    - 1.7.4
 
 script:
     - make test
