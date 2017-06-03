@@ -2,13 +2,13 @@ bin = pipethis
 build = $(shell git describe --tags)-$(shell go env GOOS)-$(shell go env GOARCH)
 goversion = $(word 3, $(shell go version))
 dist = $(bin)-$(build).tar.bz2
+files = $(shell go list ./... | grep -v vendor)
 
 all: test build
 
 .PHONY: test
 test: deps lint 
-	@go get github.com/stretchr/testify/assert
-	@go test -cover -race ./...
+	go test -cover -race $(files)
 
 .PHONY: build
 build: deps
@@ -16,9 +16,8 @@ build: deps
 
 .PHONY: clean
 clean: dist-clean
-# go clean -r hits a bunch of the stdlib, so we go nuclear!
-	go clean -i
-	rm -rf $(GOPATH)/pkg/*
+# go clean -r hits a bunch of the stdlib, which isn't ideal
+	go clean -i ./...
 	rm -f $(bin)*
 
 .PHONY: dist
@@ -33,13 +32,14 @@ dist-clean:
 .PHONY: lint
 lint:
 	@go get github.com/golang/lint/golint
-	@go fmt ./...
-	@go vet ./...
-	@golint ./...
+	go fmt $(files)
+	go vet $(files)
+	golint $(files)
 
 .PHONY: deps
 deps:
-	@go get -v
+	@go get github.com/golang/dep/cmd/dep
+	dep ensure
 
 .PHONY: watch
 watch:

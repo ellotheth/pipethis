@@ -124,10 +124,10 @@ func (k KeybaseService) Key(user User) (openpgp.EntityList, error) {
 	}
 
 	resp, err := http.Get("https://keybase.io/" + user.Username + "/key.asc")
-	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	ring, err := openpgp.ReadArmoredKeyRing(resp.Body)
 	if err != nil {

@@ -1,0 +1,7 @@
+[[constraint]]
+  version = "^1.1"
+  name = "github.com/stretchr/testify"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/crypto"
