@@ -176,11 +176,8 @@ func (s Script) Echo() error {
 	defer body.Close()
 
 	_, err = io.Copy(os.Stdout, body)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 // Inspect checks whether an inspection was requested, and sends Script.Name()

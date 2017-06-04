@@ -78,7 +78,7 @@ func (s *SigTest) TestDownloadCopiesFile() {
 
 	s.NoError(sig.Download())
 
-	actual, err := ioutil.ReadFile(sig.Name())
+	actual, _ := ioutil.ReadFile(sig.Name())
 	s.Equal(expected, actual)
 }
 
