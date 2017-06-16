@@ -31,6 +31,35 @@ func (s *LookupTest) TeardownSuite() {
 	os.Setenv("HOME", s.home)
 }
 
+func (s *LookupTest) TestUserString() {
+	expected := `     Identifier: me
+        Twitter: 
+         Github: me
+    Hacker News: 
+         Reddit: 
+    Fingerprint: foobitybar
+           Site: google.com
+           Site: yahoo.com
+          Email: me@myself
+          Email: you@yourself
+`
+	user := User{
+		Username:    "me",
+		Fingerprint: "foobitybar",
+		GitHub:      "me",
+		Sites:       []string{"google.com", "yahoo.com"},
+		Emails:      []string{"me@myself", "you@yourself"},
+	}
+
+	s.Equal(expected, user.String())
+}
+
+func (s *LookupTest) TestNewKeyServiceBailsOnUnrecognizedType() {
+	service, err := NewKeyService("foo", false)
+	s.Nil(service)
+	s.EqualError(err, "Unrecognized key service")
+}
+
 func (s *LookupTest) TestNewKeyServiceAcceptsKeybaseWithoutPipe() {
 	service, err := NewKeyService("keybase", false)
 
