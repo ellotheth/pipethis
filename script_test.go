@@ -21,6 +21,64 @@ type ScriptTest struct {
 	suite.Suite
 }
 
+func (s *ScriptTest) TestDetachSigReturnsUnsignedContents() {
+	script := Script{}
+
+	contents, err := script.detachSignature([]byte("foo"))
+	s.NoError(err)
+	s.Equal([]byte("foo"), contents)
+}
+
+func (s *ScriptTest) TestDetachSigReturnsContentsWithoutSig() {
+	expectedContents := `# PIPETHIS_AUTHOR 5AA6F296
+
+echo this is my file and there will be one match`
+	expectedSig := `-----BEGIN PGP SIGNATURE-----
+
+wsFcBAEBCAAQBQJW7YbQCRALxruWWqbylgAAAwcQACrkjS8FVy6T5+pdrcYQToo3
+41ppFNARFLor94lgeDzzuR4XkfNR4Cms8saceKTLfkan5nxnS/w6c/koFPskDHyS
+2mZL0dDia7KUNMPt2rZGC6CLkKXs83eWAFZr4S2Y4gUYQGatAzvhTc9kgFtPRyBn
+DA6FT4zj5JK4CcmxHITHeKokCwOdje80kGYlX2u3e5bqQpTbKLQ2oLMMZFfEXrDJ
+Y3QOOKmBBKrS1TXVBReauojXVNNjADPZHYQzGoxgZ0GjTESkEjzrCjQnnTMcIN4C
+nlskH9q28xyeDWBj+H7gNOpQZ2B3fs0cUs05Ucce/xBZeHaXqaW3GFmfdCbv1J9A
+CjgVMGojAjTZf47y1mmHL9yh9gkXaLTYyO37MNku+cR0ntKIi3VyIHopiljYPGOG
+r3EFxZOHg40QalMezFIfUG0S2MLpJ9+d5cvgdzHHHZYeL49L17U6eePnbt++xmGy
+RrnWb1C/OXxYfCveB42v1/gg9novYYZ8/n/OLCsOL37v+b8rwEjNufmv+7G7DqOU
+ejljGRd27WQSBaYQMovWGpgLmMyCiW6wnUbYFivlOTcnMvOnRsBXqCJt0jdpFEBp
+hfZr8sPYSgWIDnkt7DWIwd8/eap5mgMkC5j+Q81Lcv01OfDmppRlMWRf+a4BpHFd
+FiV3SWOrHc2hIbLugeNf
+=tnov
+-----END PGP SIGNATURE-----`
+
+	script := Script{filename: "fixtures/signed.attached"}
+	sigFile := script.filename + ".sig"
+
+	body, err := getLocal(script.filename)
+	s.NoError(err)
+
+	contents, err := ioutil.ReadAll(body)
+	body.Close()
+	s.NoError(err)
+
+	contents, err = script.detachSignature(contents)
+	s.NoError(err)
+	s.True(script.clearsigned)
+	s.Equal([]byte(expectedContents), contents)
+
+	// check the (now detached) signature contents
+	body, err = getLocal(sigFile)
+	s.NoError(err)
+
+	contents, err = ioutil.ReadAll(body)
+	body.Close()
+	s.NoError(err)
+
+	s.Equal([]byte(expectedSig), contents)
+
+	err = os.Remove(sigFile)
+	s.NoError(err)
+}
+
 func (s *ScriptTest) TestAuthorUsesSavedName() {
 	script := Script{author: "foo"}
 

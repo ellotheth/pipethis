@@ -50,7 +50,7 @@ deps:
 .PHONY: watch
 watch:
 	@while true; do \
-		make test; \
-		inotifywait -qqre modify,create,delete,move .; \
+		go test -cover -race $(files); \
 		echo watching for changes...; \
+		inotifywait -qqre modify,create,delete,move --exclude "\.git" .; \
 	done
