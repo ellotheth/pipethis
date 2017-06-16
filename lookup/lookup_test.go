@@ -84,14 +84,14 @@ func (s *LookupTest) TestChooseSingleMatchBailsWithoutMatches() {
 }
 
 func (s *LookupTest) TestChooseSingleMatchBailsWithMoreThanOneMatch() {
-	user, err := chooseSingleMatch([]User{User{}, User{}})
+	user, err := chooseSingleMatch([]User{{}, {}})
 
 	s.Error(err)
 	s.Equal(User{}, user)
 }
 
 func (s *LookupTest) TestChooseSingleMatchReturnsSingleMatch() {
-	user, err := chooseSingleMatch([]User{User{Username: "foo"}})
+	user, err := chooseSingleMatch([]User{{Username: "foo"}})
 
 	s.NoError(err)
 	s.Equal("foo", user.Username)

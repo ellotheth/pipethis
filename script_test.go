@@ -120,9 +120,9 @@ func (s *ScriptTest) TestAuthorParsesFileForPattern() {
 }
 func providerTestAuthorInvalid() [][]string {
 	return [][]string{
-		[]string{"", ``},
-		[]string{"", `no author here yo`},
-		[]string{"", `
+		{"", ``},
+		{"", `no author here yo`},
+		{"", `
 stuff things
 more stuff
 # comments to ignore
@@ -134,11 +134,11 @@ things and stuff
 }
 func providerTestAuthorValid() [][]string {
 	return [][]string{
-		[]string{`bar`, `PIPETHIS_AUTHOR bar`},
-		[]string{`bar`, `// PIPETHIS_AUTHOR bar         `},
-		[]string{`bar`, `# PIPETHIS_AUTHOR bar         `},
-		[]string{`bar`, `# PIPETHIS_AUTHOR		bar				   `},
-		[]string{`bar_STUFF_123`, `
+		{`bar`, `PIPETHIS_AUTHOR bar`},
+		{`bar`, `// PIPETHIS_AUTHOR bar         `},
+		{`bar`, `# PIPETHIS_AUTHOR bar         `},
+		{`bar`, `# PIPETHIS_AUTHOR		bar				   `},
+		{`bar_STUFF_123`, `
 stuff things
 more stuff
 # comments to ignore
@@ -146,7 +146,7 @@ more stuff
 # more comments
 things and stuff
 		`},
-		[]string{`bar_STUFF_123`, `
+		{`bar_STUFF_123`, `
 // PIPETHIS_AUTHOR bar_STUFF_123 should take this one
 // PIPETHIS_AUTHOR other_author should ignore this one
 		`},

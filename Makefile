@@ -34,8 +34,8 @@ lint:
 	@go get github.com/golang/lint/golint
 	@go get honnef.co/go/tools/cmd/gosimple
 	@go get honnef.co/go/tools/cmd/staticcheck
-	@if gofmt -l . |grep -v vendor/; then \
-		echo "found formatting errors. run go fmt $(files)" && exit 1; \
+	@if gofmt -l -s . |grep -v vendor/; then \
+		echo "found formatting errors. run gofmt -s -d ." && exit 1; \
 	fi
 	go vet $(files)
 	staticcheck $(files)
