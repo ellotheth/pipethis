@@ -8,10 +8,10 @@ env:
         - PATH="$HOME/gopath/bin:$HOME/bin:$PATH"
 
 # need to fix the linter before enabling tip again
-# matrix:
-#     include:
-#         - os: linux
-#           go: tip
+matrix:
+    include:
+        - os: linux
+          go: tip
 
 notifications:
     email:
@@ -21,5 +21,9 @@ go:
     - 1.7.6
     - 1.8.3
 
+before_install:
+    - go get github.com/mattn/goveralls
+
 script:
     - make test
+    - goveralls -service=travis-ci
