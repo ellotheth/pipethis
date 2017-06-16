@@ -21,6 +21,11 @@ type SigTest struct {
 	suite.Suite
 }
 
+func (s *SigTest) TestNewCreatesFilename() {
+	sig := NewSignature(nil, &Script{filename: "foo.sh"}, "")
+	s.Equal("foo.sh.sig", sig.Name())
+}
+
 func (s *SigTest) TestSourceUsesSaved() {
 	sig := Signature{source: "foosig"}
 	s.Equal("foosig", sig.Source())
